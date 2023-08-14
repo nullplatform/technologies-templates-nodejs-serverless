@@ -1,0 +1,62 @@
+name: ci-single-asset-serverless
+on:
+  push:
+    branches:
+      - master
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log into nullplatform
+        id: login
+        uses: nullplatform/github-action-login@v1
+        with:
+          api-key: ${{ secrets.NULLPLATFORM_API_KEY }}
+      - name: Get nullplatform application
+        id: get-application
+        uses: nullplatform/github-action-metadata@v1
+        with:
+          resource: application
+      - name: Save application into build context
+        id: save-application
+        run: |
+          echo "application-id=${{ fromJson(steps.get-application.outputs.metadata)[0].id }}" >> "$GITHUB_OUTPUT"
+          echo "application-name=${{ fromJson(steps.get-application.outputs.metadata)[0].name }}" >> "$GITHUB_OUTPUT"
+      - name: Create build for ${{ steps.save-application.outputs.application-name }}
+        id: create-build
+        uses: nullplatform/github-action-build@v1
+        with:
+          action: create
+          application-id: ${{ steps.save-application.outputs.application-id }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Set build for ${{ steps.save-application.outputs.application-name }} in progress
+        id: set-build-in-progress
+        uses: nullplatform/github-action-build@v1
+        with:
+          action: update
+          id: ${{ steps.create-build.outputs.id }}
+          status: in_progress
+      - name: Build & push assets for ${{ steps.save-application.outputs.application-name }}
+        id: build-push-assets
+        uses: nullplatform/github-action-asset-build-push@v1
+        with:
+          application-id: ${{ steps.save-application.outputs.application-id }}
+          build-id: ${{ steps.create-build.outputs.id }}
+          type: lambda
+      - name: Finalize build for ${{ steps.save-application.outputs.application-name }} with status ${{ steps.build-push-assets.outcome == 'failure' && 'failed' || 'successful' }}
+        id: finalize-build
+        if: ${{ always() }}
+        uses: nullplatform/github-action-build@v1
+        env:
+          CREATE_IMAGE_RESULT: ${{ steps.build-push-assets.outcome == 'failure' && 'failed' || 'successful' }}
+        with:
+          action: update
+          id: ${{ steps.create-build.outputs.id }}
+          status: ${{ env.CREATE_IMAGE_RESULT }}

@@ -1,0 +1,23 @@
+{
+  "name": "technology-templates-nodejs-serverless",
+  "version": "1.0.0",
+  "description": "NodeJS Serverless Template Example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nullplatform/technology-templates-nodejs-serverless.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nullplatform/technology-templates-nodejs-serverless/issues"
+  },
+  "homepage": "https://github.com/nullplatform/technology-templates-nodejs-serverless#readme",
+  "dependencies": {
+    "@fastify/aws-lambda": "^3.3.0",
+    "fastify": "^4.21.0"
+  }
+}
