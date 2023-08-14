@@ -17,7 +17,6 @@ To get started, follow these steps:
 
 1. **Install Dependencies**: Navigate to the template directory and install the required dependencies.
    ```bash
-   cd templates/template-name
    npm install
    ```
 
