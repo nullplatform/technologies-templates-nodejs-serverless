@@ -24,6 +24,8 @@ ASSET_FILE=$(ASSET_NAME).zip
 all: clean build push
 build: setup test compile package
 
+clean:
+	rm -r $(ASSET_OUTPUT_DIRECTORY)
 setup:
 	mkdir -p $(ASSET_OUTPUT_DIRECTORY)
 	cp $(ASSET_WORKING_DIRECTORY)/package.json $(ASSET_OUTPUT_DIRECTORY)
