@@ -41,4 +41,4 @@ jobs:
         uses: nullplatform/github-action-setup-ci@v1
         with:
           build-id: ${{ steps.setup-ci.outputs.build-id }}
-          status: ${{ (steps.push-asset.conclusion == 'failure' || steps.push-asset.conclusion == 'cancelled') && 'failed' || 'successful' }}
+          status: ${{ contains(fromJSON('["failure", "cancelled"]'), job.status) && 'failed' || 'successful' }}
