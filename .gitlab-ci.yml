@@ -1,0 +1,45 @@
+default:
+  tags:
+    - $RUNNER_TAG
+
+stages:
+  - nullplatform-login
+  - nullplatform-application-metadata
+  - nullplatform-build-create
+  - nullplatform-build-update
+  - nullplatform-asset-lambda-create
+  - nullplatform-asset-lambda-build
+  - nullplatform-asset-lambda-push
+  - nullplatform-build-finalize
+  - company-ci
+
+include:
+  - remote: 'https://raw.githubusercontent.com/nullplatform/gitlab-pipelines/main/nullplatform-login.yml'
+  - remote: 'https://raw.githubusercontent.com/nullplatform/gitlab-pipelines/main/nullplatform-application-metadata.yml'
+  - remote: 'https://raw.githubusercontent.com/nullplatform/gitlab-pipelines/main/nullplatform-build-create.yml'
+  - remote: 'https://raw.githubusercontent.com/nullplatform/gitlab-pipelines/main/nullplatform-build-update.yml'
+  - remote: 'https://raw.githubusercontent.com/nullplatform/gitlab-pipelines/main/nullplatform-asset-lambda-create.yml'
+  - remote: 'https://raw.githubusercontent.com/nullplatform/gitlab-pipelines/main/nullplatform-asset-lambda-build.yml'
+    inputs:
+      ci-image: "node:18-alpine"
+      ci-before-script: "apk add --no-cache zip make"
+  - remote: 'https://raw.githubusercontent.com/nullplatform/gitlab-pipelines/main/nullplatform-asset-lambda-push.yml'
+    inputs:
+      ci-image: "alpine:latest"
+      ci-before-script: "apk --no-cache add python3 py3-pip openssl make \
+        && pip3 --no-cache-dir install awscli"
+  - remote: 'https://raw.githubusercontent.com/nullplatform/gitlab-pipelines/main/nullplatform-build-finalize.yml'
+
+company-ci:
+  stage: company-ci
+  script:
+    - echo "built in nullplaform"
+  dependencies:
+    - nullplatform-login
+    - nullplatform-application-metadata
+    - nullplatform-build-create
+    - nullplatform-build-update
+    - nullplatform-asset-lambda-create
+    - nullplatform-asset-lambda-build
+    - nullplatform-asset-lambda-push
+    - nullplatform-build-finalize
